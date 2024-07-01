@@ -4,7 +4,8 @@ import generateToken from "../utils/GenerateJWToken.js";
 
 export const signup = async (req, res) => {
     try{
-        const { username, email, password } = req.body;
+        console.log(req.body);
+        const { username, email, password } = req.body.input;
 
         // Check if the user already exists
         const userExists = await User.findOne({ username });
@@ -25,14 +26,14 @@ export const signup = async (req, res) => {
         });
 
     }catch(error){
-        console.log("Error in Signup Controller",e);
+        console.log("Error in Signup Controller",error);
         res.status(500).json({error: 'Internal server error'});
     }
 }
 
 export const login = async (req,res) => {
     try{
-        const {username, password} = req.body;
+        const {username, password} = req.body.input;
         const user = await User.findOne({username});
         const isPasswordMatch = await bcrypt.compare(password, user?.password || "");
 

@@ -1,5 +1,6 @@
 import Conversation from '../models/ConversationModel.js';
 import Message from '../models/messageModel.js';
+import { getReceiverSocketId,io } from '../socketio/socket.js';
 
 export const sendMessages = async (req, res) => {
     try {
@@ -35,6 +36,10 @@ export const sendMessages = async (req, res) => {
             newMessage.save()
         ]);
 
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit('newMessage',newMessage);
+        }
         res.status(201).json(newMessage);
 
     } catch (error) {
@@ -52,7 +57,7 @@ export const getMessages = async (req, res) => {
         let conversation = await Conversation.findOne({
             participants: { $all: [senderId, receiverId] }
         }).populate('messages');
-
+        console.log(conversation);
         res.status(200).json(conversation.messages)
     } catch (error) {
         console.log("Error in send Controller", error);
